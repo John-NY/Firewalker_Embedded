@@ -24,3 +24,22 @@ fileWriterClass::~fileWriterClass()
 
 }
 
+QFile *fileWriterClass::createFile(QString &name)
+{
+    fileName.sprintf("%s_%s.txt",t.currentDateTime().toString("yyyyMMdd-HHmmss").toLocal8Bit().data(), name.toLocal8Bit().data());
+    fprintf(stdout,"%s\n",fileName.toLocal8Bit().data());
+    myFile = new QFile(fileName);
+    myFile->open(QFile::WriteOnly);
+    if( !myFile->isOpen() )
+        fprintf(stdout,"Could not open file %s!", fileName.data());
+}
+
+void fileWriterClass::writeToFile(QByteArray myData)
+{
+    QString myTelemetry(myData);
+    myTelemetry.replace("|","");
+    myTelemetry.prepend(t.currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzzz, "));
+    myTelemetry.append("\n");
+    myFile->write(myTelemetry.toLocal8Bit());
+    myFile->flush();
+}

@@ -17,6 +17,7 @@
 
 #include <QObject>
 #include <QFile>
+#include <QDateTime>
 
 class fileWriterClass : public QObject
 {
@@ -24,14 +25,18 @@ class fileWriterClass : public QObject
 public:
     explicit fileWriterClass(QObject *parent = 0);
     ~fileWriterClass();
+    QFile *createFile(QString& name);
 
 private:
+    QDateTime t;
+    QFile* myFile;
+    QString fileName;
 //    void setFolder();
-//    QFile* createFile(QString& name);
 
 signals:
 
 public slots:
+    void writeToFile(QByteArray);
 
 };
 

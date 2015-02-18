@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     QThread udpSenderThread;
     QThread udpListenerThread;
     QThread megaSerialThread;
+    QThread fileWriterThread;
 
     QSerialPort* mySerial = new QSerialPort();
     configureSerial(mySerial);
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
     udpPacketSender* mySender = new udpPacketSender();
     megaSerialClass* myMega = new megaSerialClass(mySerial);
     telemetryClass* myTelemetry = new telemetryClass();
+    fileWriterClass* myTelemetryFile = new fileWriterClass();
 
     masterClock->moveToThread(&masterClockThread);
     mySender->moveToThread(&udpSenderThread);
@@ -38,6 +40,10 @@ int main(int argc, char *argv[])
     myMega->moveToThread(&megaSerialThread);
     mySerial->moveToThread(&megaSerialThread);
     myTelemetry->moveToThread(&udpSenderThread);
+    myTelemetryFile->moveToThread(&udpSenderThread);
+
+    QString filename = "megaTelemetry";
+    myTelemetryFile->createFile(filename);
 
     /** Connect Actions to Master Clock **/
 //    QObject::connect()
@@ -45,7 +51,8 @@ int main(int argc, char *argv[])
     QObject::connect(masterClock,SIGNAL(doAction5Hz()),mySender,SLOT(sendDatagram()));
 
     /** Connect Other Actions **/
-    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetry,SLOT(parseTelemetryPacket(QByteArray)));
+//    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetry,SLOT(parseTelemetryPacket(QByteArray)));
+    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetryFile,SLOT(writeToFile(QByteArray)));
 
     /** Clean Up Classes on Thread Close **/
     QObject::connect(&masterClockThread,SIGNAL(finished()),masterClock,SLOT(deleteLater()));
@@ -59,6 +66,7 @@ int main(int argc, char *argv[])
     udpListenerThread.start();
     udpSenderThread.start();
     megaSerialThread.start();
+    fileWriterThread.start();
 
     /* Set thread priority after starting thread */
     masterClockThread.setPriority(QThread::HighestPriority);
