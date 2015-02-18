@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Master Clock Class
+ *
+ * This class creates signals to execute all timed events.  This class
+ * replaces "Timer" type classes with a single master timer.
+ *
+ * Created 16 Feb 2015 by John Donovan for Ted Donovan (SDSM)
+ *****************************************************************************/
 #include "masterclock.h"
 
 MasterScheduler::MasterScheduler(QObject *parent) : QObject(parent)

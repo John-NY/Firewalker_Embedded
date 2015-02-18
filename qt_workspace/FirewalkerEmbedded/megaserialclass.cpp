@@ -1,3 +1,10 @@
+/******************************************************************************
+ * Mega Serial Class
+ *
+ * This class handles all read/write operations with the sensor module.
+ *
+ * Created 16 Feb 2015 by John Donovan for Ted Donovan (SDSM)
+ *****************************************************************************/
 #include "megaserialclass.h"
 
 megaSerialClass::megaSerialClass(QSerialPort *serialPort, QObject *parent) : QObject(parent)

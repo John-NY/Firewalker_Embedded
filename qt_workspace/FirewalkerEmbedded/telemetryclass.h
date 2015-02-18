@@ -1,3 +1,13 @@
+/******************************************************************************
+ * Telemetry Class
+ *
+ * This class holds telemetry data from the sensor module and Ardupilot that
+ * is not written directly to file.
+ * [ Telemetry Class will be reduced or deleted since telemetry is to be
+ * written to filesystem for external processing. ]
+ *
+ * Created 16 Feb 2015 by John Donovan for Ted Donovan (SDSM)
+ *****************************************************************************/
 #ifndef TELEMETRYCLASS_H
 #define TELEMETRYCLASS_H
 
