@@ -9,7 +9,7 @@
 
 void configureSerial(QSerialPort* serialPort)
 {
-    serialPort->setPortName("/dev/ttyUSB1");
+    serialPort->setPortName("/dev/ttyUSB0");
     serialPort->setBaudRate(QSerialPort::Baud57600);
     serialPort->open(QIODevice::ReadWrite);
 }
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     myMega->moveToThread(&megaSerialThread);
     mySerial->moveToThread(&megaSerialThread);
     myTelemetry->moveToThread(&udpSenderThread);
-    myTelemetryFile->moveToThread(&udpSenderThread);
+    myTelemetryFile->moveToThread(&fileWriterThread);
 
     QString filename = "megaTelemetry";
     myTelemetryFile->createFile(filename);
@@ -48,19 +48,21 @@ int main(int argc, char *argv[])
     /** Connect Actions to Master Clock **/
 //    QObject::connect()
     QObject::connect(masterClock,SIGNAL(doAction1Hz()),myMega,SLOT(requestTelemetry()));
-    QObject::connect(masterClock,SIGNAL(doAction5Hz()),mySender,SLOT(sendDatagram()));
+//    QObject::connect(masterClock,SIGNAL(doAction5Hz()),mySender,SLOT(sendDatagram()));
 
     /** Connect Other Actions **/
-//    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetry,SLOT(parseTelemetryPacket(QByteArray)));
+    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetry,SLOT(parseTelemetryPacket(QByteArray)));
     QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),myTelemetryFile,SLOT(writeToFile(QByteArray)));
+    QObject::connect(myMega,SIGNAL(signalPacketReceived(QByteArray)),mySender,SLOT(sendDatagram(QByteArray)));
 
     /** Clean Up Classes on Thread Close **/
     QObject::connect(&masterClockThread,SIGNAL(finished()),masterClock,SLOT(deleteLater()));
     QObject::connect(&udpSenderThread,SIGNAL(finished()),mySender,SLOT(deleteLater()));
     QObject::connect(&udpListenerThread,SIGNAL(finished()),myListener,SLOT(deleteLater()));
-    QObject::connect(&udpListenerThread,SIGNAL(finished()),myTelemetry,SLOT(deleteLater()));
+    QObject::connect(&udpSenderThread,SIGNAL(finished()),myTelemetry,SLOT(deleteLater()));
     QObject::connect(&megaSerialThread,SIGNAL(finished()),myMega,SLOT(deleteLater()));
     QObject::connect(&megaSerialThread,SIGNAL(finished()),mySerial,SLOT(deleteLater()));
+    QObject::connect(&fileWriterThread,SIGNAL(finished()),myTelemetryFile,SLOT(deleteLater()));
 
     masterClockThread.start();
     udpListenerThread.start();

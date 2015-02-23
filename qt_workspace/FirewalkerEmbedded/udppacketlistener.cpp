@@ -38,6 +38,7 @@ void udpPacketListener::processPendingDatagrams()
         QByteArray datagram;
         datagram.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(datagram.data(), datagram.size());
+        fprintf(stdout,"Datagram: %s\n",datagram.data());
         fprintf(stdout,".");
         fflush(stdout);
     }

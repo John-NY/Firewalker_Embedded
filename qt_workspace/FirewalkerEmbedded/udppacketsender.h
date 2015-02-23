@@ -34,7 +34,7 @@ private:
 signals:
 
 public slots:
-    void sendDatagram();
+    void sendDatagram(QByteArray datagram);
 
 };
 

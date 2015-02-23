@@ -27,10 +27,13 @@ udpPacketSender::~udpPacketSender()
 
 }
 
-void udpPacketSender::sendDatagram()
+void udpPacketSender::sendDatagram(QByteArray datagram)
 {
+    fprintf(stdout,"Trying to send data: ");
+    fprintf(stdout,"%s\n",datagram.data());
+    fflush(stdout);
 //! [1]
-    QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
+//    QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
     udpSocket->writeDatagram(datagram.data(), datagram.size(),
                              QHostAddress::Broadcast, SENDER_PORT);
 //! [1]

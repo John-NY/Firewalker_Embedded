@@ -41,7 +41,7 @@ void megaSerialClass::handleBytesWritten(qint64 bytes)
     m_bytesWritten += bytes;
     if (m_bytesWritten == m_writeData.size()) {
         m_bytesWritten = 0;
-        m_standardOutput << QObject::tr("Data successfully sent to port %1").arg(m_serialPort->portName()) << endl;
+        m_standardOutput << QObject::tr("\nData successfully sent to port %1").arg(m_serialPort->portName()) << endl;
         m_standardOutput << endl;
     }
 }
@@ -80,8 +80,10 @@ void megaSerialClass::ProcessSerialReceived()
             hasStarted = true;
         }
     }
+//    m_standardOutput << "?";
     if( (start > -1) && (end > -1) )
     {
+//        m_standardOutput << "?";
         emit signalPacketReceived( m_accumulated.mid(start,end-start+1) );
         m_accumulated.remove(start,end-start+1);
 //        m_accumulated.clear();
