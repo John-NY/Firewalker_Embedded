@@ -48,7 +48,8 @@ SOURCES += main.cpp \
     udppacketlistener.cpp\
     megaserialclass.cpp \
     telemetryclass.cpp \
-    filewriterclass.cpp
+    filewriterclass.cpp \
+    powerswitcharduino.cpp
 
 HEADERS += \
     masterclock.h \
@@ -56,4 +57,5 @@ HEADERS += \
     udppacketlistener.h \
     megaserialclass.h \
     telemetryclass.h \
-    filewriterclass.h
+    filewriterclass.h \
+    powerswitcharduino.h

@@ -25,6 +25,7 @@ int telemetryClass::parseTelemetryPacket(QByteArray myData )
     QString myTelemetry(myData);
     fprintf(stdout,"Received: %s\n",myTelemetry.toLocal8Bit().data());
     fflush(stdout);
+    emit reportTelemetryUpdate(myData);
     return 0;
 }
 
