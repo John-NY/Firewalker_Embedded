@@ -8,9 +8,12 @@
 #include "telemetryclass.h"
 #include "filewriterclass.h"
 
-void configureSerial(QSerialPort* serialPort)
+#define SENSOR_SERIAL_MEGA "/dev/ttyUSB0"
+#define POWER_SERIAL_ARDU "/dev/ttyUSB1"
+
+void configureSerial(QSerialPort* serialPort, QString sPort)
 {
-    serialPort->setPortName("/dev/ttyUSB0");
+    serialPort->setPortName(sPort);
     serialPort->setBaudRate(QSerialPort::Baud57600);
     serialPort->open(QIODevice::ReadWrite);
 }
@@ -40,7 +43,7 @@ int main(int argc, char *argv[])
     /** Set up the various pieces that handle and log the sensor readings and telemetry **/
     QSerialPort* megaSerial = new QSerialPort(); // serial port for comms
     configureSerial(megaSerial); // configured standard
-    megaSerialClass* myMega = new megaSerialClass(megaSerial); // handles send/receive/signals
+    megaSerialClass* myMega = new megaSerialClass(megaSerial,SENSOR_SERIAL_MEGA); // handles send/receive/signals
     telemetryClass* megaTelemetry = new telemetryClass(); // Sensor Telemetry Holder
     fileWriterClass* megaTelemetryFile = new fileWriterClass(); // Sensor Telemetry Logger
     myMega->moveToThread(&megaSerialThread); // Needs a thread to execute
@@ -53,7 +56,7 @@ int main(int argc, char *argv[])
     /** Set up the various pieces that handle and log the power switch controller **/
     QSerialPort* powerSerial = new QSerialPort(); // serial port for comms
     configureSerial(powerSerial); // configured standard
-    PowerSwitchArduino* myPower = new PowerSwitchArduino(powerSerial); // handles send/receive/signals
+    PowerSwitchArduino* myPower = new PowerSwitchArduino(powerSerial,POWER_SERIAL_ARDU); // handles send/receive/signals
     telemetryClass* powerTelemetry = new telemetryClass(); // Power Telemetry Holder
     fileWriterClass* powerTelemetryFile = new fileWriterClass(); // Power Telemetry Logger
     myPower->moveToThread(&powerSerialThread); // Needs a thread to execute
