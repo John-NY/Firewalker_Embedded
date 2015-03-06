@@ -81,9 +81,11 @@ void loop()
 {
     if( checkIfSerialCompleted(&cmdSerial, cmdInFrameBuffer, &cmdPtr) )
     {
-        ProcessPacket();
-        // cmdSerial.println("Ready to print");
-        cmdSerial.print(cmdOutFrameBuffer);
+        if( ProcessPacket() > 0 )
+        {
+            // cmdSerial.println("Ready to print");
+            cmdSerial.print(cmdOutFrameBuffer);
+        }
     }
     doHousekeeping();
 }
@@ -106,6 +108,11 @@ int ProcessPacket()
         cCmd = cmdInFrameBuffer[p++];
 
     int iRet;
+    if( cmdPtr < 3 )
+    {
+        cmdPtr = 0; // reset the pointer.
+        return 0;
+    }
 
     switch( cCmd )
     {
