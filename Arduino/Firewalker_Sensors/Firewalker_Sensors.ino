@@ -18,9 +18,13 @@ int cmdPtr = 0;
 // lower precision, higher rate sampling. default is TMP007_CFG_16SAMPLE which takes
 // 4 seconds per reading (16 samples)
 
+/** Set up the Analog Sensors **/
+#define PERIOD_ANALOG_SENSE_MS 400
+unsigned long lastAnalogSense;
+
 /** Set up the IR Temp Sensors (a.k.a. Lava Sensors) **/
 #define N_LAVA 7
-#define PERIOD_LAVA_SENSE_MS 4000
+#define PERIOD_LAVA_SENSE_MS 400
 Adafruit_TMP007 lavaSense[N_LAVA];  // set up an array to scan through
 bool lavaSensorOk[N_LAVA];
 float lavaFovT[N_LAVA]; // This holds the temp sense from FOV of the IR Temp
@@ -75,7 +79,6 @@ void InitializeLavaSensors()
 
 void loop()
 {
-    checkLavaSenseIfAvailable();
     if( checkIfSerialCompleted(&cmdSerial, cmdInFrameBuffer, &cmdPtr) )
     {
         ProcessPacket();
@@ -101,6 +104,8 @@ int ProcessPacket()
     char cCmd = cmdInFrameBuffer[p++];
     while( (cCmd == FEND) && (p < cmdPtr) )
         cCmd = cmdInFrameBuffer[p++];
+
+    cmdInFrameBuffer[p-1] = 'X'; // This resets the command
 
     switch( cCmd )
     {
@@ -158,7 +163,11 @@ int processNakPacketRequest( char* outBuffer, char* inBuffer, int* inPtr )
  **/
 void doHousekeeping()
 {
-    
+    // Explanation -- I only want to do one of these check functions
+    // per time that I call housekeeping.
+    if( !checkLavaSenseIfAvailable() )
+        if( !checkAnalogSensorsIfAvailable() )
+            return;
 }
 
 /** checkIfSerialAvailable
@@ -192,7 +201,7 @@ bool checkIfSerialCompleted( HardwareSerial* mySerial, char* buffer, int* ptr )
  * Created 14 Feb 2015 by J. Donovan for Ted Donovan
  * 
  **/
-void checkLavaSenseIfAvailable()
+bool checkLavaSenseIfAvailable()
 {
     if( (lastLavaSense + PERIOD_LAVA_SENSE_MS) < millis() )
     {
@@ -215,9 +224,18 @@ void checkLavaSenseIfAvailable()
                     lavaSensorOk[i] = true;
                 }
             }
+            lastLavaSense = millis();
         }
-        lastLavaSense = millis();
+        return true;
     }
-    lavaFovT[3] = -0.03;//lavaSense[i].readObjTempC();
+    return false;
 }
 
+
+bool checkAnalogSensorsIfAvailable()
+{
+    if( (lastAnalogSense + PERIOD_ANALOG_SENSE_MS) < millis() )
+    {
+        // for each analog sensor, do reading to variable
+    }
+}
