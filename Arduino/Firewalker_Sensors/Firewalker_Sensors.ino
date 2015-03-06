@@ -141,7 +141,7 @@ int processTelemetryRequest( char* outBuffer, char* inBuffer, int* inPtr )
     for( int i = 0; i < N_LAVA; i++ )
         sprintf(outBuffer, "%s, %s%d.%.2d", outBuffer, SIGN(lavaFovT[i]), int(lavaFovT[i]), abs(int(lavaFovT[i]*100) % 100) );
     sprintf(outBuffer, "%s%c", outBuffer,FEND);
-    return 0;
+    return outPtr;
 }
 
 int processAckPacketRequest( char* outBuffer, char* inBuffer, int* inPtr )
