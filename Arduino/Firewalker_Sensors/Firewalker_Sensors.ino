@@ -105,22 +105,25 @@ int ProcessPacket()
     while( (cCmd == FEND) && (p < cmdPtr) )
         cCmd = cmdInFrameBuffer[p++];
 
-    cmdInFrameBuffer[p-1] = 'X'; // This resets the command
+    int iRet;
 
     switch( cCmd )
     {
         case 'T':
             cmdDebug.println("Found telemetry Request");
-            return processTelemetryRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
+            iRet = processTelemetryRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
             break;
         case 'A':
-            return processAckPacketRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
+            iRet = processAckPacketRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
+            break;
         default:
-            return processNakPacketRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
+            iRet = processNakPacketRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
     }
 
     cmdPtr = 0; // reset the pointer.
-    return 0;
+    cmdInFrameBuffer[p-1] = 'X'; // This resets the command
+
+    return iRet;
 }
 
 int processTelemetryRequest( char* outBuffer, char* inBuffer, int* inPtr )
