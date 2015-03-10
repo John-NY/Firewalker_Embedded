@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     QObject::connect(powerTelemetry,SIGNAL(reportTelemetryUpdate(QByteArray)),mySender,SLOT(sendDatagram(QByteArray)));
 
     /** Clean Up Classes on Thread Close **/
+    QObject::connect(&masterClockThread,SIGNAL(started()),masterClock,SLOT(doWork()));
     QObject::connect(&masterClockThread,SIGNAL(finished()),masterClock,SLOT(deleteLater()));
 
     QObject::connect(&udpSenderThread,SIGNAL(finished()),mySender,SLOT(deleteLater()));
@@ -97,6 +98,8 @@ int main(int argc, char *argv[])
     QObject::connect(&powerSerialThread,SIGNAL(finished()),powerSerial,SLOT(deleteLater()));
     QObject::connect(&fileWriterThread,SIGNAL(finished()),powerTelemetryFile,SLOT(deleteLater()));
 
+//        masterClock->doWork();
+
     masterClockThread.start();
     udpListenerThread.start();
     udpSenderThread.start();
@@ -105,10 +108,6 @@ int main(int argc, char *argv[])
 
     /* Set thread priority after starting thread */
     masterClockThread.setPriority(QThread::HighestPriority);
-
-    masterClock->doWork();
-
-    masterClockThread.wait();
 
     return a.exec();
 }
