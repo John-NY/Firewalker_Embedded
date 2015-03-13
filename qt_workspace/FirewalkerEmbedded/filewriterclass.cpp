@@ -31,7 +31,8 @@ QFile *fileWriterClass::createFile(QString &name)
     myFile = new QFile(fileName);
     myFile->open(QFile::WriteOnly);
     if( !myFile->isOpen() )
-        fprintf(stdout,"Could not open file %s!", fileName.data());
+        fprintf(stdout,"Could not open file %s!", fileName.toLocal8Bit().data());
+    return myFile;
 }
 
 void fileWriterClass::writeToFile(QByteArray myData)
