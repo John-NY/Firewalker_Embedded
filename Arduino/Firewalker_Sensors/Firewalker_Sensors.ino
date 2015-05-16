@@ -116,6 +116,8 @@ int ProcessPacket()
 
     switch( cCmd )
     {
+        case 'U': // resquest for identifier
+            cmdSerial.println("Mega Sensors");
         case 'T':
             cmdDebug.println("Found telemetry Request");
             iRet = processTelemetryRequest(cmdOutFrameBuffer, cmdInFrameBuffer, &cmdPtr);
