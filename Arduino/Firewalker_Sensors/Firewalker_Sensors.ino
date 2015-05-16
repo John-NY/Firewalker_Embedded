@@ -177,8 +177,8 @@ void doHousekeeping()
 {
     // Explanation -- I only want to do one of these check functions
     // per time that I call housekeeping.
-    if( !checkLavaSenseIfAvailable() )
-        if( !checkAnalogSensorsIfAvailable() )
+    if( !readLavaSenseIfAvailable() )
+        if( !readAnalogSensorsIfAvailable() )
             return;
 }
 
@@ -206,14 +206,14 @@ bool checkIfSerialCompleted( HardwareSerial* mySerial, char* buffer, int* ptr )
 }
 
 
-/** checkLavaSenseIfAvailable
+/** readLavaSenseIfAvailable
  * 
  * This function polls the IR Temp Sensors
  * 
  * Created 14 Feb 2015 by J. Donovan for Ted Donovan
  * 
  **/
-bool checkLavaSenseIfAvailable()
+bool readLavaSenseIfAvailable()
 {
     if( (lastLavaSense + PERIOD_LAVA_SENSE_MS) < millis() )
     {
@@ -244,7 +244,7 @@ bool checkLavaSenseIfAvailable()
 }
 
 
-bool checkAnalogSensorsIfAvailable()
+bool readAnalogSensorsIfAvailable()
 {
     if( (lastAnalogSense + PERIOD_ANALOG_SENSE_MS) < millis() )
     {
