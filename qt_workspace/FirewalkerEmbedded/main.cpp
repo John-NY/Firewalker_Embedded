@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QThread>
+#include <QDateTime>
 #include <QRegularExpressionMatch>
 #include "masterclock.h"
 #include "udppacketlistener.h"
@@ -10,8 +11,9 @@
 #include "filewriterclass.h"
 
 #define UNKNOWN_SERIAL_ONE "/dev/ttyUSB0"
-#define UNKNOWN_SERIAL_TWO "/dev/ttyUSB1"
+#define UNKNOWN_SERIAL_TWO "/dev/ttyACM0"
 #define SERIAL_IDENTIFIER_MIN_LENGTH_BYTES 4
+#define SERIAL_DISCOVERY_TIMEOUT_MS 1000
 
 enum SerialDeviceType{
     SERIAL_TYPE_UNKNOWN
@@ -22,9 +24,12 @@ enum SerialDeviceType{
 
 int configureSerial(QSerialPort* serialPort, QString sPort)
 {
+    QDateTime dt;
     bool configured = false;
     int iTotalResponseLength = 0;
     int serialType = SERIAL_TYPE_UNKNOWN;
+
+    quint64 last = dt.currentDateTimeUtc().toMSecsSinceEpoch();
 
     QByteArray qbTemp;
     QByteArray qbResponse;
@@ -34,15 +39,25 @@ int configureSerial(QSerialPort* serialPort, QString sPort)
     if( !serialPort->isOpen() )
         return SERIAL_TYPE_MISSING;
     /* Now ask the device what it is */
-    serialPort->write("||UniqueId||"); // Frame characters are '|', and sending two frame chars ensures they work on reset or startup (bug workaround).
+    serialPort->write("||UUniqueId||"); // Frame characters are '|', and sending two frame chars ensures they work on reset or startup (bug workaround).
     while( !configured ) {
         qbTemp = serialPort->read(100);
         qbResponse.append(qbTemp);
         iTotalResponseLength += qbTemp.length();
-        fprintf(stdout, "%.4d bytes: %s\n", qbTemp.length(), qbTemp.data());
-        fflush(stdout);
+        if( qbTemp.length() > 0 )
+        {
+            fprintf(stdout, "%.4d bytes: %s\n", qbTemp.length(), qbTemp.data());
+            fflush(stdout);
+        }
         if( qbTemp.length() >= SERIAL_IDENTIFIER_MIN_LENGTH_BYTES )
             configured = true;
+        if( dt.currentDateTime().toMSecsSinceEpoch() - SERIAL_DISCOVERY_TIMEOUT_MS > last )
+        {
+            serialType = SERIAL_TYPE_MISSING;
+            serialPort->write("||UUUU||");
+            last = dt.currentDateTime().toMSecsSinceEpoch();
+            configured = true;  // no serial device, but it's as configured as it's gonna get.
+        }
     }
     serialPort->flush();
     QRegularExpression reMega("(Mega)");
@@ -136,6 +151,13 @@ int main(int argc, char *argv[])
         powerTelemetryFile->createFile(powerfilename);
     } else {
         bPowerSerialUnassignedFlag = true;
+    }
+
+    if( bPowerSerialUnassignedFlag && bMegaSerialUnassignedFlag )
+    {
+        fprintf(stdout, "There are no devices.\n");
+        fflush(stdout);
+        return 0;
     }
 
     /** Connect Actions to Master Clock **/
